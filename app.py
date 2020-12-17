@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import InputRequired, Length
 from flask_wtf.file import FileAllowed, FileField
 from flask_uploads import UploadSet, configure_uploads, IMAGES
@@ -40,6 +40,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(50))
     image = db.Column(db.String(100))
     join_date = db.Column(db.DateTime)
+    tweets = db.relationship('Tweet', backref='user', lazy='dynamic')
 
 
 class Tweet(db.Model):
@@ -67,6 +68,10 @@ class LoginForm(FlaskForm):
     password = PasswordField("Password", validators=[InputRequired('A password is required')])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
+
+
+class TweetForm(FlaskForm):
+    text = TextAreaField('Message', validators=[InputRequired('Message is required')])
 
 
 @app.route('/')
@@ -106,7 +111,22 @@ def profile():
 
 @app.route('/timeline')
 def timeline():
-    return render_template('timeline.html')
+    form = TweetForm()
+    tweets = Tweet.query.filter_by(user_id=current_user.id).order_by(Tweet.date_created.desc()).all()
+    current_time = datetime.now()
+    return render_template('timeline.html', form=form, tweets=tweets, current_time=current_time)
+
+
+@app.route('/post_tweet', methods=['POST'])
+@login_required
+def post_tweet():
+    form = TweetForm()
+    if form.validate():
+        new_tweet = Tweet(user_id=current_user.id, text=form.text.data, date_created=datetime.now())
+        db.session.add(new_tweet)
+        db.session.commit()
+        return redirect(url_for('timeline'))
+    return 'new tweet failed'
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -124,6 +144,23 @@ def register():
 
         return redirect(url_for('profile'))
     return render_template('register.html', form=form)
+
+
+@app.template_filter('time_since')
+def time_since(delta):
+    seconds = delta.total_seconds()
+    
+    days, seconds = divmod(seconds, 86400)
+    hours, seconds = divmod(seconds, 3600)
+    minutes, seconds = divmod(seconds, 60)
+    if days > 0:
+        return f'{days}d'
+    elif hours > 0:
+        return f'{hours}h'
+    if minutes > 0:
+        return f'{minutes}m'
+    else:
+        return 'Just now'
 
 
 if __name__ == "__main__":
