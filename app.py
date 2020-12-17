@@ -9,9 +9,13 @@ from flask_wtf.file import FileAllowed, FileField
 from flask_uploads import UploadSet, configure_uploads, IMAGES
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from datetime import datetime
+
 
 app = Flask(__name__)
+
 photos = UploadSet('photos', IMAGES)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///engage.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DEBUG'] = True
@@ -19,10 +23,13 @@ app.config['SECRET_KEY'] = 'afsfvskjdfnskjdvhhskhdksndv'
 app.config['UPLOADED_PHOTOS_DEST'] = 'images'
 
 login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
+
 configure_uploads(app, photos)
 
 
@@ -32,6 +39,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(30))
     password = db.Column(db.String(50))
     image = db.Column(db.String(100))
+    join_date = db.Column(db.DateTime)
 
 
 @login_manager.user_loader
@@ -60,7 +68,7 @@ def index():
     return render_template('index.html', form=form)
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -76,8 +84,15 @@ def login():
     return redirect(url_for('index'))
 
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
 
 @app.route('/profile')
+@login_required
 def profile():
     return render_template('profile.html')
 
@@ -96,7 +111,7 @@ def register():
         image_url = photos.url(image_filename)
         # add user
         hashed_password = generate_password_hash(form.password.data)
-        new_user = User(name=form.name.data, username=form.username.data, password=hashed_password, image=image_url)
+        new_user = User(name=form.name.data, username=form.username.data, password=hashed_password, image=image_url, join_date=datetime.now())
         db.session.add(new_user)
         db.session.commit()
 
