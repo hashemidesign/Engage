@@ -15,6 +15,15 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    username = db.Column(db.String(30))
+    password = db.Column(db.String(50))
+    image = db.Column(db.String(100))
+
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
