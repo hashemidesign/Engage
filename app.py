@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash
+from flask import Flask, render_template, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
@@ -7,6 +7,7 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length
 from flask_wtf.file import FileAllowed, FileField
 from flask_uploads import UploadSet, configure_uploads, IMAGES
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 photos = UploadSet('photos', IMAGES)
@@ -58,10 +59,16 @@ def timeline():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
+        # upload image
         image_filename = photos.save(form.image.data)
         image_url = photos.url(image_filename)
+        # add user
+        hashed_password = generate_password_hash(form.password.data)
+        new_user = User(name=form.name.data, username=form.username.data, password=hashed_password, image=image_url)
+        db.session.add(new_user)
+        db.session.commit()
 
-        return f'<h1>name: {form.name.data}, username: {form.username.data}, password: {form.password.data}, image_url: {image_url}'
+        return redirect(url_for('profile'))
     return render_template('register.html', form=form)
 
 
