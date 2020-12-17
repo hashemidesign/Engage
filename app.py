@@ -3,11 +3,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import InputRequired, Length
 from flask_wtf.file import FileAllowed, FileField
 from flask_uploads import UploadSet, configure_uploads, IMAGES
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 app = Flask(__name__)
 photos = UploadSet('photos', IMAGES)
@@ -17,6 +18,7 @@ app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = 'afsfvskjdfnskjdvhhskhdksndv'
 app.config['UPLOADED_PHOTOS_DEST'] = 'images'
 
+login_manager = LoginManager(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 manager = Manager(app)
@@ -24,12 +26,17 @@ manager.add_command('db', MigrateCommand)
 configure_uploads(app, photos)
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     username = db.Column(db.String(30))
     password = db.Column(db.String(50))
     image = db.Column(db.String(100))
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 class RegisterForm(FlaskForm):
@@ -40,9 +47,34 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Register')
 
 
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired('A username is required')])
+    password = PasswordField("Password", validators=[InputRequired('A password is required')])
+    remember = BooleanField('Remember Me')
+    submit = SubmitField('Login')
+
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    form = LoginForm()
+    return render_template('index.html', form=form)
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+
+        if not user:
+            return 'login failed'
+        
+        if check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
+            return redirect(url_for('profile'))
+        return 'login failed'
+    return redirect(url_for('index'))
+
 
 
 @app.route('/profile')
