@@ -80,7 +80,7 @@
 						</li>
 						<li class="list-group-item">
 							<i class="glyphicon glyphicon-th"></i> Handle:
-							<strong class="pull-right"><em>@{{ user.username }}</em></strong>
+							<strong class="pull-right"><a href="{{ url_for('profile', username=user.username) }}"><em>@{{ user.username }}</em></a></strong>
 						</li>
 						<li class="list-group-item">
 							<i class="glyphicon glyphicon-calendar"></i> MEMBER SINCE:
@@ -130,7 +130,7 @@
 												<div class="col-lg-10">
 													<div>
 														<strong class="mid">{{ user.name }}</strong>
-														<small><em>@{{ user.username }}</em></small> .
+														<small><a href="{{ url_for('profile', username=user.username) }}"><em>@{{ user.username }}</em></a></small> .
 														{{ (current_time - t.date_created)|time_since}}
 													</div>
 													<div class="pad">
@@ -154,7 +154,7 @@
 												<div class="col-lg-10">
 													<div>
 														<strong class="mid">{{ follower.name }}</strong>
-														<small><em>@{{ follower.username }}</em></small>
+														<small><a href="{{ url_for('profile', username=follower.username) }}"><em>@{{ follower.username }}</em></a></small>
 													</div>
 													<div class="row pad">
 														<hr />

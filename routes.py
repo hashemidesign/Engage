@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for
 from app import app, photos, db
-from models import User, Tweet
+from models import User, Tweet, followers
 from forms import RegisterForm, LoginForm, TweetForm
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -60,14 +60,16 @@ def timeline(username):
     if username:
         user = User.query.filter_by(username=username).first_or_404()
         user_id = user.id
+        tweets = Tweet.query.filter_by(user_id=user_id).order_by(Tweet.date_created.desc()).all()
     else:
         user = current_user
         user_id = current_user.id
+        tweets = Tweet.query.join(followers, (followers.c.followee_id==Tweet.user_id)).filter(followers.c.follower_id==current_user.id).order_by(Tweet.date_created.desc()).all()
 
     form = TweetForm()
-    tweets = Tweet.query.filter_by(user_id=user_id).order_by(Tweet.date_created.desc()).all()
+    total_tweets = len(tweets)
     current_time = datetime.now()
-    return render_template('timeline.html', form=form, tweets=tweets, current_time=current_time, user=user)
+    return render_template('timeline.html', form=form, tweets=tweets, current_time=current_time, user=user, total_tweets=total_tweets)
 
 
 @app.route('/post_tweet', methods=['POST'])
@@ -94,6 +96,8 @@ def register():
         new_user = User(name=form.name.data, username=form.username.data, password=hashed_password, image=image_url, join_date=datetime.now())
         db.session.add(new_user)
         db.session.commit()
+
+        login_user(new_user)
 
         return redirect(url_for('profile'))
     return render_template('register.html', form=form)
