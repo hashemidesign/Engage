@@ -42,12 +42,20 @@ def profile():
     return render_template('profile.html')
 
 
-@app.route('/timeline')
-def timeline():
+@app.route('/timeline', defaults={'username': None})
+@app.route('/timeline/<username>')
+def timeline(username):
+    if username:
+        user = User.query.filter_by(username=username).first_or_404()
+        user_id = user.id
+    else:
+        user = current_user
+        user_id = current_user.id
+
     form = TweetForm()
-    tweets = Tweet.query.filter_by(user_id=current_user.id).order_by(Tweet.date_created.desc()).all()
+    tweets = Tweet.query.filter_by(user_id=user_id).order_by(Tweet.date_created.desc()).all()
     current_time = datetime.now()
-    return render_template('timeline.html', form=form, tweets=tweets, current_time=current_time)
+    return render_template('timeline.html', form=form, tweets=tweets, current_time=current_time, user=user)
 
 
 @app.route('/post_tweet', methods=['POST'])
