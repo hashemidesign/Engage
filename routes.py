@@ -44,7 +44,14 @@ def profile(username):
         user = User.query.filter_by(username=username).first_or_404()
     else:
         user = current_user
-    return render_template('profile.html', user=user, current_time=current_time)
+    
+    followed_by = user.followed_by.all()
+
+    display_follow = True
+    if current_user in followed_by or current_user == user:
+        display_follow = False
+
+    return render_template('profile.html', user=user, current_time=current_time, followed_by=followed_by, display_follow=display_follow)
 
 
 @app.route('/timeline', defaults={'username': None})
