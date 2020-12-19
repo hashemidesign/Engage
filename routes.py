@@ -7,6 +7,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 
+def who_to_watch_list(user):
+    return User.query.filter(User.id!=user.id).order_by(db.func.random()).limit(4).all()
+
+
+def get_current_time():
+    return datetime.now()
+
+
 @app.route('/')
 def index():
     form = LoginForm()
@@ -39,7 +47,6 @@ def logout():
 @app.route('/profile', defaults={'username': None})
 @app.route('/profile/<username>')
 def profile(username):
-    current_time = datetime.now()
     if username:
         user = User.query.filter_by(username=username).first_or_404()
     else:
@@ -51,8 +58,8 @@ def profile(username):
     if current_user in followed_by or current_user == user:
         display_follow = False
     
-    who_to_watch = User.query.filter(User.id!=user.id).order_by(db.func.random()).limit(4).all()
-
+    current_time = get_current_time()
+    who_to_watch = who_to_watch_list(user)
     return render_template('profile.html', user=user, current_time=current_time, followed_by=followed_by, display_follow=display_follow, who_to_watch=who_to_watch, active_page='profile')
 
 
@@ -70,8 +77,9 @@ def timeline(username):
 
     form = TweetForm()
     total_tweets = len(tweets)
-    current_time = datetime.now()
-    who_to_watch = User.query.filter(User.id!=user.id).order_by(db.func.random()).limit(4).all()
+
+    current_time = get_current_time()
+    who_to_watch = who_to_watch_list(user)
     return render_template('timeline.html', form=form, tweets=tweets, current_time=current_time, user=user, total_tweets=total_tweets, who_to_watch=who_to_watch, active_page='timeline')
 
 
