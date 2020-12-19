@@ -50,8 +50,10 @@ def profile(username):
     display_follow = True
     if current_user in followed_by or current_user == user:
         display_follow = False
+    
+    who_to_watch = User.query.filter(User.id!=user.id).order_by(db.func.random()).limit(4).all()
 
-    return render_template('profile.html', user=user, current_time=current_time, followed_by=followed_by, display_follow=display_follow)
+    return render_template('profile.html', user=user, current_time=current_time, followed_by=followed_by, display_follow=display_follow, who_to_watch=who_to_watch)
 
 
 @app.route('/timeline', defaults={'username': None})
@@ -69,7 +71,8 @@ def timeline(username):
     form = TweetForm()
     total_tweets = len(tweets)
     current_time = datetime.now()
-    return render_template('timeline.html', form=form, tweets=tweets, current_time=current_time, user=user, total_tweets=total_tweets)
+    who_to_watch = User.query.filter(User.id!=user.id).order_by(db.func.random()).limit(4).all()
+    return render_template('timeline.html', form=form, tweets=tweets, current_time=current_time, user=user, total_tweets=total_tweets, who_to_watch=who_to_watch)
 
 
 @app.route('/post_tweet', methods=['POST'])

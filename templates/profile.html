@@ -181,42 +181,17 @@
 						<h3>Who To Watch</h3>
 					</div>
 					<ul class="list-group">
+						{% for wtw in who_to_watch %}
 						<li class="list-group-item">
-							The English Premier League
+							{{ wtw.name }}
 							<div>
-								<strong>@theEPL</strong>
+								<strong><a href="{{ url_for('profile', username=wtw.username) }}">@{{ wtw.username }}</a></strong>
 								<span class="pull-right">
-									3,949,335 Followers
+									{{ wtw.followed_by.all()|length }} Followers
 								</span>
 							</div>
 						</li>
-						<li class="list-group-item">
-							Barclays Bank
-							<div>
-								<strong>@barclarysBank</strong>
-								<span class="pull-right">
-									3,451 Followers
-								</span>
-							</div>
-						</li>
-						<li class="list-group-item">
-							Leonardo Rumlow
-							<div>
-								<strong>@rummYLEO</strong>
-								<span class="pull-right">
-									350 Followers
-								</span>
-							</div>
-						</li>
-						<li class="list-group-item">
-							The Cable People
-							<div>
-								<strong>@theCablePeeps</strong>
-								<span class="pull-right">
-									19,004 Followers
-								</span>
-							</div>
-						</li>
+						{% endfor %}
 					</ul>
 				</div>
 			</div>
