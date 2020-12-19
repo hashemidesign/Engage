@@ -36,10 +36,15 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html')
+@app.route('/profile', defaults={'username': None})
+@app.route('/profile/<username>')
+def profile(username):
+    current_time = datetime.now()
+    if username:
+        user = User.query.filter_by(username=username).first_or_404()
+    else:
+        user = current_user
+    return render_template('profile.html', user=user, current_time=current_time)
 
 
 @app.route('/timeline', defaults={'username': None})

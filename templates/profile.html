@@ -68,7 +68,7 @@
 									width: 200px; height: 200px; 
 									background-position: center; background-repeat: no-repeat; 
 									background-size: cover; 
-									background-image: url('{{ current_user.image }}')">
+									background-image: url('{{ user.image }}')">
 								</div>
 							</div>
 						</div>
@@ -76,15 +76,15 @@
 					<ul class="list-group">
 						<li class="list-group-item">
 							<i class="glyphicon glyphicon-user"></i> NAME:
-							<strong class="pull-right">{{ current_user.name }}</strong>
+							<strong class="pull-right">{{ user.name }}</strong>
 						</li>
 						<li class="list-group-item">
 							<i class="glyphicon glyphicon-th"></i> Handle:
-							<strong class="pull-right"><em>@{{ current_user.username }}</em></strong>
+							<strong class="pull-right"><em>@{{ user.username }}</em></strong>
 						</li>
 						<li class="list-group-item">
 							<i class="glyphicon glyphicon-calendar"></i> MEMBER SINCE:
-							<strong class="pull-right">{{ current_user.join_date.strftime('%B %d, %Y') }}</strong>
+							<strong class="pull-right">{{ user.join_date.strftime('%B %d, %Y') }}</strong>
 						</li>
 						<li class="list-group-item">
 							<i class="glyphicon glyphicon-th-list"></i> FOLLOWERS COUNT:
@@ -114,67 +114,28 @@
 							<!-- Tab panes -->
 							<div class="tab-content">
 								<div role="tabpanel" class="tab-pane active" id="tweets">
+									{% for t in user.tweets %}
 									<div class="row">
 										<div class="col-lg-12">
 											<div class="row pad">
 												<div class="col-lg-2">
-													<img src="{{ url_for('static', filename='imgs/anonymous.png') }}"
+													<img src="{{ user.image }}"
 														class="img-circle" style="width: 60px; height: 60px;" />
 												</div>
 												<div class="col-lg-10">
 													<div>
-														<strong class="mid">Miranda Cavendish</strong>
-														<small><em>@mirandaCAV</em></small> .
-														July 5
+														<strong class="mid">{{ user.name }}</strong>
+														<small><em>@{{ user.username }}</em></small> .
+														{{ (current_time - t.date_created)|time_since}}
 													</div>
 													<div class="pad">
-														Yesterday was the best <a href="#">#fourthOfJuly</a> celebration
-														of my life.
+														{{ t.text }}
 													</div>
 												</div>
 											</div>
 										</div>
 									</div>
-									<div class="row">
-										<div class="col-lg-12">
-											<div class="row pad">
-												<div class="col-lg-2">
-													<img src="{{ url_for('static', filename='imgs/anonymous.png') }}"
-														class="img-circle" style="width: 60px; height: 60px;" />
-												</div>
-												<div class="col-lg-10">
-													<div>
-														<strong class="mid">Miranda Cavendish</strong>
-														<small><em>@mirandaCAV</em></small> .
-														July 5
-													</div>
-													<div class="pad">
-														Had fun with my family last night. <a href="#">#fourthOfJuly</a>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-									<div class="row">
-										<div class="col-lg-12">
-											<div class="row pad">
-												<div class="col-lg-2">
-													<img src="{{ url_for('static', filename='imgs/anonymous.png') }}"
-														class="img-circle" style="width: 60px; height: 60px;" />
-												</div>
-												<div class="col-lg-10">
-													<div>
-														<strong class="mid">Miranda Cavendish</strong>
-														<small><em>@mirandaCAV</em></small> .
-														July 5
-													</div>
-													<div class="pad">
-														<a href="#">#fourthOfJuly</a> party is officially on!!!
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
+									{% endfor %}
 								</div>
 								<div role="tabpanel" class="tab-pane" id="followings">
 									<div class="row">
