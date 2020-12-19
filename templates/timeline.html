@@ -1,206 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+	<div class="col-lg-12">
+		<h3 class="text-center bold">Timeline</h3>
+	</div>
 
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Timeline | Eng@ge!</title>
-
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="{{ url_for('static', filename='bs/css/united.min.css') }}">
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-
-<body>
-
-	<div class="container-fluid">
-		<div class="row" id="banner">
-			<div class="title col-lg-12">
-				<p class="title">
-					<a href="{{ url_for('index') }}">ENG@GE!</a>
-				</p>
-				<p class="subtitle">...the awesome social platform</p>
+	<div class="col-lg-3">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="row pad">
+					<div class="col-lg-12">
+						<div style="
+							border-radius: 50%;
+							border: 2px solid #666;
+							box-shadow: 0 0 10px rgba(0,0,0,0.3);
+							margin: 0 auto;
+							width: 200px; height: 200px; 
+							background-position: center; background-repeat: no-repeat; 
+							background-size: cover; 
+							background-image: url('{{ user.image }}')">
+						</div>
+					</div>
+				</div>
+				<div class="row pad">
+					<div class="col-lg-4 col-lg-offset-2 text-center">
+						<strong>
+							Tweets <br />
+							{{ total_tweets }}
+						</strong>
+					</div>
+					<div class="col-lg-4 text-center">
+						<strong>
+							Followers <br />
+							{{ user.followed_by.all()|length }}
+						</strong>
+					</div>
+				</div>
 			</div>
+			<ul class="list-group">
+				<a class="list-group-item" data-toggle="modal" href="#newPost" data-backdrop="static"
+					data-keboard="false">
+					<i class="glyphicon glyphicon-plus-sign"></i> Post New Message
+				</a>
+			</ul>
 		</div>
 	</div>
 
-	<nav class="navbar navbar-default" role="navigation">
-		<div class="container-fluid">
-			<!-- Brand and toggle get grouped for better mobile display -->
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="./">Eng@ge!</a>
-			</div>
-
-			<!-- Collect the nav links, forms, and other content for toggling -->
-			<div class="collapse navbar-collapse navbar-ex1-collapse">
-				<ul class="nav navbar-nav navbar-right">
-					<li class="active"><a href="{{ url_for('timeline') }}">Timeline</a></li>
-					<li class=""><a href="{{ url_for('profile') }}">My Profile</a></li>
-					<li class=""><a href="{{ url_for('logout') }}">Logout</a></li>
-				</ul>
-			</div><!-- /.navbar-collapse -->
-		</div>
-	</nav>
-
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-12">
-				<h3 class="text-center bold">Timeline</h3>
-			</div>
-
-			<div class="col-lg-3">
-				<div class="panel panel-default">
-					<div class="panel-body">
-						<div class="row pad">
-							<div class="col-lg-12">
-								<div style="
-									border-radius: 50%;
-									border: 2px solid #666;
-									box-shadow: 0 0 10px rgba(0,0,0,0.3);
-									margin: 0 auto;
-									width: 200px; height: 200px; 
-									background-position: center; background-repeat: no-repeat; 
-									background-size: cover; 
-									background-image: url('{{ user.image }}')">
+	<div class="col-lg-6">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				{% for tweet in tweets %}
+				<div class="row">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+						<div class="thumbnail">
+							<div class="caption">
+								<div class="row">
+									<div class="col-lg-10">
+										<!-- <i class="glyphicon glyphicon-user"></i>  -->
+										<img src="{{ tweet.user.image }}" style="width: 30px; height: 30px;"
+											class="img-circle">
+										<strong>{{ tweet.user.name }}</strong>
+										<small><a
+												href="{{ url_for('profile', username=tweet.user.username) }}"><em>@{{
+													tweet.user.username }}</em></a></small>
+									</div>
+									<div class="col-lg-2 text-right">
+										{{ (current_time - tweet.date_created)|time_since }}
+									</div>
 								</div>
-							</div>
-						</div>
-						<div class="row pad">
-							<div class="col-lg-4 col-lg-offset-2 text-center">
-								<strong>
-									Tweets <br />
-									{{ total_tweets }}
-								</strong>
-							</div>
-							<div class="col-lg-4 text-center">
-								<strong>
-									Followers <br />
-									300
-								</strong>
-							</div>
-						</div>
-					</div>
-					<ul class="list-group">
-						<a class="list-group-item" data-toggle="modal" href="#newPost" data-backdrop="static"
-							data-keboard="false">
-							<i class="glyphicon glyphicon-plus-sign"></i> Post New Message
-						</a>
-					</ul>
-				</div>
-			</div>
-
-			<div class="col-lg-6">
-				<div class="panel panel-default">
-					<div class="panel-body">
-						{% for tweet in tweets %}
-						<div class="row">
-							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-								<div class="thumbnail">
-									<div class="caption">
-										<div class="row">
-											<div class="col-lg-10">
-												<!-- <i class="glyphicon glyphicon-user"></i>  -->
-												<img src="{{ tweet.user.image }}" style="width: 30px; height: 30px;"
-													class="img-circle">
-												<strong>{{ tweet.user.name }}</strong>
-												<small><a
-														href="{{ url_for('profile', username=tweet.user.username) }}"><em>@{{
-															tweet.user.username }}</em></a></small>
-											</div>
-											<div class="col-lg-2 text-right">
-												{{ (current_time - tweet.date_created)|time_since }}
-											</div>
-										</div>
-										<div class="row pad">
-											<div class="col-lg-12">
-												{{ tweet.text }}
-											</div>
-										</div>
+								<div class="row pad">
+									<div class="col-lg-12">
+										{{ tweet.text }}
 									</div>
 								</div>
 							</div>
 						</div>
-						{% endfor %}
 					</div>
 				</div>
-			</div>
-
-			<div class="col-lg-3">
-				<div class="panel panel-default">
-					<div class="panel-body">
-						<h3>Who To Watch</h3>
-					</div>
-					<ul class="list-group">
-						{% for wtw in who_to_watch %}
-						<li class="list-group-item">
-							{{ wtw.name }}
-							<div>
-								<strong><a href="{{ url_for('profile', username=wtw.username) }}">@{{ wtw.username
-										}}</a></strong>
-								<span class="pull-right">
-									{{ wtw.followed_by.all()|length }} Followers
-								</span>
-							</div>
-						</li>
-						{% endfor %}
-					</ul>
-				</div>
-			</div>
-		</div>
-
-		<footer>
-			<div class="row pad">
-				<div class="col-lg-12 text-center">
-					Copyright &copy; 2017 <strong> <a href="{{ url_for('index') }}">Eng@ge!</a></strong>
-				</div>
-			</div>
-		</footer>
-
-		<div class="modal fade" id="newPost">
-			<div class="modal-dialog">
-				<form class="modal-content" action="{{ url_for('post_tweet') }}" method="POST">
-					{{ form.csrf_token }}
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						<h4 class="modal-title">Post New Message</h4>
-					</div>
-					<div class="modal-body">
-						<div class="row">
-							<div class="col-lg-8 col-lg-offset-2">
-								<div class="form-group">
-									<label>Enter new <a href="{{ url_for('index') }}">Eng@ge!</a> post</label>
-									{{ form.text(class="form-control", rows="6") }}
-								</div>
-								<div class="form-group">
-									By posting on our platform, you agree to our <a href="#">Terms and Conditions</a>.
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">
-							<i class="glyphicon glyphicon-ban-circle"></i> Close
-						</button>
-						<button type="submit" class="btn btn-primary">
-							<i class="glyphicon glyphicon-send"></i> Post
-						</button>
-					</div>
-				</form>
+				{% endfor %}
 			</div>
 		</div>
 	</div>
 
-	<!-- jQuery -->
-	<script src="{{ url_for('static', filename='bs/js/jquery.min.js') }}"></script>
-	<!-- Bootstrap JavaScript -->
-	<script src="{{ url_for('static', filename='bs/js/bootstrap.min.js') }}"></script>
-</body>
-
-</html>
+	<div class="col-lg-3">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<h3>Who To Watch</h3>
+			</div>
+			<ul class="list-group">
+				{% for wtw in who_to_watch %}
+				<li class="list-group-item">
+					{{ wtw.name }}
+					<div>
+						<strong><a href="{{ url_for('profile', username=wtw.username) }}">@{{ wtw.username
+								}}</a></strong>
+						<span class="pull-right">
+							{{ wtw.followed_by.all()|length }} Followers
+						</span>
+					</div>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</div>
+{% endblock %}

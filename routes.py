@@ -53,7 +53,7 @@ def profile(username):
     
     who_to_watch = User.query.filter(User.id!=user.id).order_by(db.func.random()).limit(4).all()
 
-    return render_template('profile.html', user=user, current_time=current_time, followed_by=followed_by, display_follow=display_follow, who_to_watch=who_to_watch)
+    return render_template('profile.html', user=user, current_time=current_time, followed_by=followed_by, display_follow=display_follow, who_to_watch=who_to_watch, active_page='profile')
 
 
 @app.route('/timeline', defaults={'username': None})
@@ -72,7 +72,7 @@ def timeline(username):
     total_tweets = len(tweets)
     current_time = datetime.now()
     who_to_watch = User.query.filter(User.id!=user.id).order_by(db.func.random()).limit(4).all()
-    return render_template('timeline.html', form=form, tweets=tweets, current_time=current_time, user=user, total_tweets=total_tweets, who_to_watch=who_to_watch)
+    return render_template('timeline.html', form=form, tweets=tweets, current_time=current_time, user=user, total_tweets=total_tweets, who_to_watch=who_to_watch, active_page='timeline')
 
 
 @app.route('/post_tweet', methods=['POST'])
