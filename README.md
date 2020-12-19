@@ -1,1 +1,1 @@
-twiiter clone app
+** Twitter Clone app from prettyPrinted channel. 
